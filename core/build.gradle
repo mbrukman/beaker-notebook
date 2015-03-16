@@ -117,6 +117,16 @@ task (compileCssDebug, type: Exec) {
   commandLine(*(winOrUnix('npm', 'run-script', 'compile', '--', '--debug')))
 }
 
+task (prepareNamespaceApp, type: Copy) {
+  from 'src/main/web/app/dist/beakerApp.css'
+  to 'src/main/web/app/temp/_beakerApp.scss'
+}
+task (prepareNamespaceOutputDisplay, type: Copy) {
+  from 'src/main/web/app/dist/beakerOutputDisplay.css'
+  to 'src/main/web/app/temp/_beakerOutputDisplay.scss'
+}
+task (namespaceCss, type: Copy) {
+  commandLine(*(winOrUnix('npm', 'run-script', 'namespaceCss')))
 }
 
 task (copyNginx, type: Exec) {
@@ -139,6 +149,7 @@ task builddebug
 task debug
 
 bowerInstall.dependsOn npmInstall
+//namespaceCss.dependsOn compileCss
 compileCss.dependsOn npmInstall
 compileCss.dependsOn extractPackages
 compileCssDebug.dependsOn npmInstall

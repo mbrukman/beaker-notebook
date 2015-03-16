@@ -8,6 +8,8 @@ var minifyJS  = require('gulp-uglify');
 var htmlmin   = require('gulp-htmlmin');
 var htmlClass = require('html-classer-gulp');
 var importCss = require('gulp-import-css');
+var rename    = require('gulp-rename');
+var replace   = require('gulp-replace');
 var Path      = require('path');
 var debug     = require('gulp-debug');
 var gtemplate = require('gulp-template');
@@ -83,12 +85,27 @@ gulp.task("buildSingleOutDispJs", function() {
 });
 
 gulp.task("compileBeakerScss", function() {
-  return gulp.src(Path.join(rootPath, "**.scss"))
+  return gulp.src(Path.join(rootPath, "src/**.scss"))
   .pipe(sass().on('error', handleError))
   .pipe(importCss())
   .pipe(stripCssComments())
   //.pipe(minifyCSS())
   .pipe(gulp.dest(tempPath))
+});
+
+gulp.task('prepareCssForNamespacing', function(){
+  gulp.src(Path.join(buildPath, '*.css')).
+    pipe(rename(function(path) {
+      path.basename = "_" + path.basename;
+      path.extname = ".scss";
+    }))
+    .pipe(gulp.dest(Path.join(tempPath, "namespacedCss")))
+    .on('error', handleError);
+});
+gulp.task("namespaceCss", function() {
+  return gulp.src("beaker-sandbox.scss")
+  .pipe(sass()).on('error', handleError)
+  .pipe(gulp.dest(Path.join(buildPath, "beaker.css")))
 });
 
 gulp.task("compileBeakerTemplates", function() {

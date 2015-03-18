@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.twosigma.beaker.scala.rest;
+package com.twosigma.beaker.clojure.rest;
 
 import com.google.inject.Singleton;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
-import com.twosigma.beaker.scala.util.ScalaEvaluator;
+import com.twosigma.beaker.clojure.util.ClojureEvaluator;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -32,14 +32,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("scalash")
+@Path("clojuresh")
 @Produces(MediaType.APPLICATION_JSON)
 @Singleton
-public class ScalaShellRest {
+public class ClojureShellRest {
 
-  private final Map<String, ScalaEvaluator> shells = new HashMap<>();
+  private final Map<String, ClojureEvaluator> shells = new HashMap<>();
 
-  public ScalaShellRest() throws IOException {}
+  public ClojureShellRest() throws IOException {}
 
   @POST
   @Path("getShell")
@@ -51,7 +51,7 @@ public class ScalaShellRest {
 	  // if the shell does not already exist, create a new shell
 	  if (shellId.isEmpty() || !this.shells.containsKey(shellId)) {
 	      shellId = UUID.randomUUID().toString();
-	      ScalaEvaluator js = new ScalaEvaluator(shellId,sessionId);
+	      ClojureEvaluator js = new ClojureEvaluator(shellId,sessionId);
 	      this.shells.put(shellId, js);
 	      return shellId;
 	  }

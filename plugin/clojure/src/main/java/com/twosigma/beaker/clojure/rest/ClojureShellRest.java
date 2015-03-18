@@ -77,54 +77,54 @@ public class ClojureShellRest {
 	  return obj;
   }
 
-  @POST
-  @Path("autocomplete")
-  public List<String> autocomplete(
-      @FormParam("shellId") String shellId,
-      @FormParam("code") String code,
-      @FormParam("caretPosition") int caretPosition) throws InterruptedException {
-	    if(!this.shells.containsKey(shellId)) {
-	        return null;
-	      }
-	    return this.shells.get(shellId).autocomplete(code, caretPosition);
-  }
+  // @POST
+  // @Path("autocomplete")
+  // public List<String> autocomplete(
+  //     @FormParam("shellId") String shellId,
+  //     @FormParam("code") String code,
+  //     @FormParam("caretPosition") int caretPosition) throws InterruptedException {
+	//     if(!this.shells.containsKey(shellId)) {
+	//         return null;
+	//       }
+	//     return this.shells.get(shellId).autocomplete(code, caretPosition);
+  // }
 
-  @POST
-  @Path("exit")
-  public void exit(@FormParam("shellId") String shellId) {
-	    if(!this.shells.containsKey(shellId)) {
-	        return;
-	      }
-	      this.shells.get(shellId).exit();
-	      this.shells.remove(shellId);
-  }
+  // @POST
+  // @Path("exit")
+  // public void exit(@FormParam("shellId") String shellId) {
+	//     if(!this.shells.containsKey(shellId)) {
+	//         return;
+	//       }
+	//       this.shells.get(shellId).exit();
+	//       this.shells.remove(shellId);
+  // }
 
-  @POST
-  @Path("cancelExecution")
-  public void cancelExecution(@FormParam("shellId") String shellId) {
-	    if(!this.shells.containsKey(shellId)) {
-	        return;
-	      }
-	      this.shells.get(shellId).cancelExecution();
-  }
+  // @POST
+  // @Path("cancelExecution")
+  // public void cancelExecution(@FormParam("shellId") String shellId) {
+	//     if(!this.shells.containsKey(shellId)) {
+	//         return;
+	//       }
+	//       this.shells.get(shellId).cancelExecution();
+  // }
 
-  @POST
-  @Path("killAllThreads")
-  public void killAllThreads(@FormParam("shellId") String shellId) {
-	    if(!this.shells.containsKey(shellId)) {
-	        return;
-	      }
-	      this.shells.get(shellId).killAllThreads();
-  }
+  // @POST
+  // @Path("killAllThreads")
+  // public void killAllThreads(@FormParam("shellId") String shellId) {
+	//     if(!this.shells.containsKey(shellId)) {
+	//         return;
+	//       }
+	//       this.shells.get(shellId).killAllThreads();
+  // }
 
-  @POST
-  @Path("resetEnvironment")
-  public void resetEnvironment(@FormParam("shellId") String shellId) {
-    if(!this.shells.containsKey(shellId)) {
-      return;
-    }
-    this.shells.get(shellId).resetEnvironment();
-  }
+  // @POST
+  // @Path("resetEnvironment")
+  // public void resetEnvironment(@FormParam("shellId") String shellId) {
+  //   if(!this.shells.containsKey(shellId)) {
+  //     return;
+  //   }
+  //   this.shells.get(shellId).resetEnvironment();
+  // }
 
   @POST
   @Path("setShellOptions")
@@ -135,10 +135,11 @@ public class ClojureShellRest {
       @FormParam("outdir") String outDir)
     throws IOException
   {
-	  if(!this.shells.containsKey(shellId)) {
-		  return;
-	  }
-	  this.shells.get(shellId).setShellOptions(classPath, imports, outDir);
+    return;
+	  // if(!this.shells.containsKey(shellId)) {
+		//   return;
+	  // }
+	  // this.shells.get(shellId).setShellOptions(classPath, imports, outDir);
   }
 
 }

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
-import com.twosigma.beaker.clojure.util.ClojureEvaluatorGlue;
 import com.twosigma.beaker.NamespaceClient;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
@@ -95,9 +94,9 @@ public class ClojureEvaluator {
     executor.killAllThreads();
     updateLoader=true;
     syncObject.release();
-    try {
-      newAutoCompleteEvaluator();
-    } catch(MalformedURLException e) { }
+    // try {
+    //   newAutoCompleteEvaluator();
+    // } catch(MalformedURLException e) { }
   }
 
   public void exit() {
@@ -141,26 +140,26 @@ public class ClojureEvaluator {
     syncObject.release();
   }
 
-  public List<String> autocomplete(String code, int caretPosition) {
-    if(acshell != null) {
-      String [] sv = code.substring(0, caretPosition).split("\n");
-      for ( int i=0; i<sv.length-1; i++) {
-        acshell.evaluate2(sv[i]);
-        caretPosition -= sv[i].length()+1;
-      }
-      ArrayList<CharSequence> ret = acshell.autocomplete(sv[sv.length-1], caretPosition);
-      ArrayList<String> r2 = new ArrayList<String>();
-      for(CharSequence c : ret)
-        r2.add(c.toString());
-      return r2;
-    }
-    return null;
-  }
+  // public List<String> autocomplete(String code, int caretPosition) {
+  //   if(acshell != null) {
+  //     String [] sv = code.substring(0, caretPosition).split("\n");
+  //     for ( int i=0; i<sv.length-1; i++) {
+  //       acshell.evaluate2(sv[i]);
+  //       caretPosition -= sv[i].length()+1;
+  //     }
+  //     ArrayList<CharSequence> ret = acshell.autocomplete(sv[sv.length-1], caretPosition);
+  //     ArrayList<String> r2 = new ArrayList<String>();
+  //     for(CharSequence c : ret)
+  //       r2.add(c.toString());
+  //     return r2;
+  //   }
+  //   return null;
+  // }
 
-  protected ClojureDynamicClassLoader loader = null;
-  protected ClojureEvaluatorGlue shell;
-  protected ClojureDynamicClassLoader acloader = null;
-  protected ClojureEvaluatorGlue acshell;
+  // protected ClojureDynamicClassLoader loader = null;
+  // protected ClojureEvaluatorGlue shell;
+  // protected ClojureDynamicClassLoader acloader = null;
+  // protected ClojureEvaluatorGlue acshell;
 
   protected class workerThread extends Thread {
 
@@ -182,22 +181,22 @@ public class ClojureEvaluator {
           syncObject.acquire();
 
           // check if we must create or update class loader
-          if(updateLoader) {
-            shell = null;
-          }
+          // if(updateLoader) {
+          //   shell = null;
+          // }
 
           // get next job descriptor
           j = jobQueue.poll();
           if(j==null)
             continue;
 
-          if (shell==null) {
-            updateLoader=false;
-            newEvaluator();
-          }
+          //if (shell==null) {
+          //  updateLoader=false;
+          //  newEvaluator();
+          //}
 
-          if(loader!=null)
-            loader.clearCache();
+          // if(loader!=null)
+          //   loader.clearCache();
 
           j.outputObject.started();
 
@@ -237,7 +236,7 @@ public class ClojureEvaluator {
         theOutput.setOutputHandler();
         Object result;
         try {
-          shell.evaluate(theOutput, theCode);
+          theOutput.finished("2");
         } catch(Throwable e) {
           if (e instanceof InterruptedException || e instanceof InvocationTargetException || e instanceof ThreadDeath) {
             theOutput.error("... cancelled!");
@@ -253,98 +252,98 @@ public class ClojureEvaluator {
 
     };
 
-    protected ClassLoader newClassLoader() throws MalformedURLException
-    {
-      URL[] urls = {};
-      if (!classPath.isEmpty()) {
-        urls = new URL[classPath.size()];
-        for (int i = 0; i < classPath.size(); i++) {
-          urls[i] = new URL("file://" + classPath.get(i));
-          System.out.println(urls[i].toString());
-        }
-      }
-      loader = null;
-      ClassLoader cl;
-      loader = new ClojureDynamicClassLoader(outDir);
-      loader.addAll(Arrays.asList(urls));
-      cl = loader.getLoader();
-      return cl;
-    }
+    // protected ClassLoader newClassLoader() throws MalformedURLException
+    // {
+    //   URL[] urls = {};
+    //   if (!classPath.isEmpty()) {
+    //     urls = new URL[classPath.size()];
+    //     for (int i = 0; i < classPath.size(); i++) {
+    //       urls[i] = new URL("file://" + classPath.get(i));
+    //       System.out.println(urls[i].toString());
+    //     }
+    //   }
+    //   loader = null;
+    //   ClassLoader cl;
+    //   loader = new ClojureDynamicClassLoader(outDir);
+    //   loader.addAll(Arrays.asList(urls));
+    //   cl = loader.getLoader();
+    //   return cl;
+    // }
 
-    protected void newEvaluator() throws MalformedURLException
-    {
-      shell = new ClojureEvaluatorGlue(newClassLoader(), System.getProperty("java.class.path"));
+    // protected void newEvaluator() throws MalformedURLException
+    // {
+    //   shell = new ClojureEvaluatorGlue(newClassLoader(), System.getProperty("java.class.path"));
 
-      if (!imports.isEmpty()) {
-        for (int i = 0; i < imports.size(); i++) {
-          String imp = imports.get(i).trim();
-          if (imp.startsWith("import"))
-            imp = imp.substring(6).trim();
-          if (imp.endsWith(".*"))
-            imp = imp.substring(0,imp.length()-1) + "_";
-          if(!imp.isEmpty()) {
-            if(!shell.addImport(imp))
-              System.err.println("ERROR: cannot add import '"+imp+"'");
-          }
-        }
-      }
+    //   if (!imports.isEmpty()) {
+    //     for (int i = 0; i < imports.size(); i++) {
+    //       String imp = imports.get(i).trim();
+    //       if (imp.startsWith("import"))
+    //         imp = imp.substring(6).trim();
+    //       if (imp.endsWith(".*"))
+    //         imp = imp.substring(0,imp.length()-1) + "_";
+    //       if(!imp.isEmpty()) {
+    //         if(!shell.addImport(imp))
+    //           System.err.println("ERROR: cannot add import '"+imp+"'");
+    //       }
+    //     }
+    //   }
 
-      // ensure object is created
-      NamespaceClient.getBeaker(sessionId);
+    //   // ensure object is created
+    //   NamespaceClient.getBeaker(sessionId);
 
-      String r = shell.evaluate2("var beaker = NamespaceClient.getBeaker(\""+sessionId+"\")");
-      if(r!=null && !r.isEmpty()) {
-        System.err.println("ERROR setting beaker: "+r);
-      }
-    }
+    //   String r = shell.evaluate2("var beaker = NamespaceClient.getBeaker(\""+sessionId+"\")");
+    //   if(r!=null && !r.isEmpty()) {
+    //     System.err.println("ERROR setting beaker: "+r);
+    //   }
+    // }
   }
 
 
-  protected ClassLoader newAutoCompleteClassLoader() throws MalformedURLException
-  {
-    URL[] urls = {};
-    if (!classPath.isEmpty()) {
-      urls = new URL[classPath.size()];
-      for (int i = 0; i < classPath.size(); i++) {
-        urls[i] = new URL("file://" + classPath.get(i));
-        System.out.println(urls[i].toString());
-      }
-    }
-    acloader = null;
-    ClassLoader cl;
-    acloader = new ClojureDynamicClassLoader(outDir);
-    acloader.addAll(Arrays.asList(urls));
-    cl = acloader.getLoader();
-    return cl;
-  }
+  // protected ClassLoader newAutoCompleteClassLoader() throws MalformedURLException
+  // {
+  //   URL[] urls = {};
+  //   if (!classPath.isEmpty()) {
+  //     urls = new URL[classPath.size()];
+  //     for (int i = 0; i < classPath.size(); i++) {
+  //       urls[i] = new URL("file://" + classPath.get(i));
+  //       System.out.println(urls[i].toString());
+  //     }
+  //   }
+  //   acloader = null;
+  //   ClassLoader cl;
+  //   acloader = new ClojureDynamicClassLoader(outDir);
+  //   acloader.addAll(Arrays.asList(urls));
+  //   cl = acloader.getLoader();
+  //   return cl;
+  // }
 
-  protected void newAutoCompleteEvaluator() throws MalformedURLException
-  {
-    acshell = new ClojureEvaluatorGlue(newAutoCompleteClassLoader(), System.getProperty("java.class.path"));
+  // protected void newAutoCompleteEvaluator() throws MalformedURLException
+  // {
+  //   acshell = new ClojureEvaluatorGlue(newAutoCompleteClassLoader(), System.getProperty("java.class.path"));
 
-    if (!imports.isEmpty()) {
-      for (int i = 0; i < imports.size(); i++) {
-        String imp = imports.get(i).trim();
-        if (imp.startsWith("import"))
-          imp = imp.substring(6).trim();
-        if (imp.endsWith(".*"))
-          imp = imp.substring(0,imp.length()-1) + "_";
-        if(!imp.isEmpty()) {
-          if(!acshell.addImport(imp))
-            System.err.println("ERROR: cannot add import '"+imp+"'");
-        }
-      }
-    }
+  //   if (!imports.isEmpty()) {
+  //     for (int i = 0; i < imports.size(); i++) {
+  //       String imp = imports.get(i).trim();
+  //       if (imp.startsWith("import"))
+  //         imp = imp.substring(6).trim();
+  //       if (imp.endsWith(".*"))
+  //         imp = imp.substring(0,imp.length()-1) + "_";
+  //       if(!imp.isEmpty()) {
+  //         if(!acshell.addImport(imp))
+  //           System.err.println("ERROR: cannot add import '"+imp+"'");
+  //       }
+  //     }
+  //   }
 
-    // ensure object is created
-    NamespaceClient.getBeaker(sessionId);
+  //   // ensure object is created
+  //   NamespaceClient.getBeaker(sessionId);
 
-    String r = acshell.evaluate2("var beaker = NamespaceClient.getBeaker(\""+sessionId+"\")");
-    if(r!=null && !r.isEmpty()) {
-      System.err.println("ERROR setting beaker: "+r);
-    }
+  //   String r = acshell.evaluate2("var beaker = NamespaceClient.getBeaker(\""+sessionId+"\")");
+  //   if(r!=null && !r.isEmpty()) {
+  //     System.err.println("ERROR setting beaker: "+r);
+  //   }
 
-  }
+  // }
 
 }
 

@@ -13,26 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
- package com.twosigma.beaker.scala.util;
+
+ package com.twosigma.beaker.clojure.util;
 
 import java.util.concurrent.ArrayBlockingQueue;
-import scala.tools.nsc.Settings;
-import scala.tools.nsc.interpreter.Results.Error;
-import scala.tools.nsc.interpreter.Results.Success;
-import scala.tools._ 
-    import nsc.interpreter.{Completion, CompletionAware, IMain, 
-JLineCompletion, JLineDelimiter, JList, Parsed, Results, IR} 
-    import Completion.{Candidates, ScalaCompleter} 
+import clojure.tools.nsc.Settings;
+import clojure.tools.nsc.interpreter.Results.Error;
+import clojure.tools.nsc.interpreter.Results.Success;
+import clojure.tools._
+    import nsc.interpreter.{Completion, CompletionAware, IMain,
+JLineCompletion, JLineDelimiter, JList, Parsed, Results, IR}
+    import Completion.{Candidates, ClojureCompleter}
 
-import jline.console.completer.{Completer, ArgumentCompleter} 
+import jline.console.completer.{Completer, ArgumentCompleter}
 import java.util.ArrayList;
 import com.twosigma.beaker.jvm.`object`.SimpleEvaluationObject;
-import scala.collection.JavaConversions._
+import clojure.collection.JavaConversions._
 
 case class ResetState(val state: String);
 
-class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String) {
+class ClojureEvaluatorGlue(val cl: ClassLoader, var cp: String) {
   val settings = {
     val s = new Settings();
     s.bootclasspath.value = cp;
@@ -40,8 +40,8 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String) {
     s;
   }
   private val baos = new java.io.ByteArrayOutputStream();
-  
-  private def scalaToJline(tc: ScalaCompleter): Completer = new Completer {
+
+  private def clojureToJline(tc: ClojureCompleter): Completer = new Completer {
     def complete(_buf: String, cursor: Int, candidates: JList[CharSequence]): Int = {
       val buf   = if (_buf == null) "" else _buf
       val Candidates(newCursor, newCandidates) = tc.complete(buf, cursor)
@@ -49,20 +49,20 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String) {
       newCursor
     }
   }
-  
+
   var interpreter = {
     var i = new IMain(settings, new java.io.PrintWriter(baos));
     i.setContextClassLoader();
     i;
   }
-  
+
   val completer = {
     var c = new JLineCompletion(interpreter);
-    var b: ArgumentCompleter =new ArgumentCompleter(new JLineDelimiter, scalaToJline(c.completer));
+    var b: ArgumentCompleter =new ArgumentCompleter(new JLineDelimiter, clojureToJline(c.completer));
     b.setStrict(false);
     b;
-  } 
-  
+  }
+
   private def getOut: Any = {
     val lvo = interpreter.valueOfTerm(interpreter.mostRecentVar);
     lvo match {
@@ -71,7 +71,7 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String) {
       case Some(value) => value;
     }
   }
-  
+
   def addImport(name : String): Boolean = {
     baos.reset();
       try {
@@ -83,7 +83,7 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String) {
       case ex: Throwable => false;
     }
   }
-  
+
   def evaluate2(code: String): String = {
     baos.reset();
     try {
@@ -95,7 +95,7 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String) {
       case ex: Throwable => ex.toString();
     }
   }
-  
+
   def evaluate(out: SimpleEvaluationObject, code: String) {
     baos.reset();
     out.started();
@@ -108,7 +108,7 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String) {
       case ex: Throwable => out.error(ex);
     }
   }
-  
+
   def autocomplete(buf: String, len : Integer): ArrayList[CharSequence] = {
     val maybes = new java.util.ArrayList[CharSequence];
     completer.complete(buf,  len, maybes);

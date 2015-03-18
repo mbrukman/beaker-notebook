@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.twosigma.beaker.scala.util;
+package com.twosigma.beaker.clojure.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,12 +30,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
-import com.twosigma.beaker.scala.util.ScalaEvaluatorGlue;
+import com.twosigma.beaker.clojure.util.ClojureEvaluatorGlue;
 import com.twosigma.beaker.NamespaceClient;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
 
-public class ScalaEvaluator {
+public class ClojureEvaluator {
   protected final String shellId;
   protected final String sessionId;
   protected List<String> classPath;
@@ -61,7 +61,7 @@ public class ScalaEvaluator {
   protected final Semaphore syncObject = new Semaphore(0, true);
   protected final ConcurrentLinkedQueue<jobDescriptor> jobQueue = new ConcurrentLinkedQueue<jobDescriptor>();
 
-  public ScalaEvaluator(String id, String sId) {
+  public ClojureEvaluator(String id, String sId) {
     shellId = id;
     sessionId = sId;
     classPath = new ArrayList<String>();
@@ -72,7 +72,7 @@ public class ScalaEvaluator {
     currentImports = "";
     outDir = FileSystems.getDefault().getPath(System.getenv("beaker_tmp_dir"),"dynclasses",sessionId).toString();
     try { (new File(outDir)).mkdirs(); } catch (Exception e) { }
-    executor = new BeakerCellExecutor("scala");
+    executor = new BeakerCellExecutor("clojure");
     startWorker();
   }
 
@@ -98,7 +98,7 @@ public class ScalaEvaluator {
     try {
       newAutoCompleteEvaluator();
     } catch(MalformedURLException e) { }
-  } 
+  }
 
   public void exit() {
     exit = true;
@@ -112,7 +112,7 @@ public class ScalaEvaluator {
     } else {
       od = od.replace("$BEAKERDIR",System.getenv("beaker_tmp_dir"));
     }
-    
+
     // check if we are not changing anything
     if (currentClassPath.equals(cp) && currentImports.equals(in) && outDir.equals(od))
       return;
@@ -131,7 +131,7 @@ public class ScalaEvaluator {
       imports = Arrays.asList(in.split("\\s+"));
 
     try { (new File(outDir)).mkdirs(); } catch (Exception e) { }
-    
+
     resetEnvironment();
   }
 
@@ -141,7 +141,7 @@ public class ScalaEvaluator {
     syncObject.release();
   }
 
-  public List<String> autocomplete(String code, int caretPosition) {    
+  public List<String> autocomplete(String code, int caretPosition) {
     if(acshell != null) {
       String [] sv = code.substring(0, caretPosition).split("\n");
       for ( int i=0; i<sv.length-1; i++) {
@@ -157,15 +157,15 @@ public class ScalaEvaluator {
     return null;
   }
 
-  protected ScalaDynamicClassLoader loader = null;
-  protected ScalaEvaluatorGlue shell;
-  protected ScalaDynamicClassLoader acloader = null;
-  protected ScalaEvaluatorGlue acshell;
+  protected ClojureDynamicClassLoader loader = null;
+  protected ClojureEvaluatorGlue shell;
+  protected ClojureDynamicClassLoader acloader = null;
+  protected ClojureEvaluatorGlue acshell;
 
   protected class workerThread extends Thread {
 
     public workerThread() {
-      super("scala worker");
+      super("clojure worker");
     }
 
     /*
@@ -231,7 +231,7 @@ public class ScalaEvaluator {
         theCode = code;
         theOutput = out;
       }
-      
+
       @Override
       public void run() {
         theOutput.setOutputHandler();
@@ -250,7 +250,7 @@ public class ScalaEvaluator {
         }
         theOutput.setOutputHandler();
       }
-      
+
     };
 
     protected ClassLoader newClassLoader() throws MalformedURLException
@@ -265,7 +265,7 @@ public class ScalaEvaluator {
       }
       loader = null;
       ClassLoader cl;
-      loader = new ScalaDynamicClassLoader(outDir);
+      loader = new ClojureDynamicClassLoader(outDir);
       loader.addAll(Arrays.asList(urls));
       cl = loader.getLoader();
       return cl;
@@ -273,7 +273,7 @@ public class ScalaEvaluator {
 
     protected void newEvaluator() throws MalformedURLException
     {
-      shell = new ScalaEvaluatorGlue(newClassLoader(), System.getProperty("java.class.path"));
+      shell = new ClojureEvaluatorGlue(newClassLoader(), System.getProperty("java.class.path"));
 
       if (!imports.isEmpty()) {
         for (int i = 0; i < imports.size(); i++) {
@@ -288,7 +288,7 @@ public class ScalaEvaluator {
           }
         }
       }
-      
+
       // ensure object is created
       NamespaceClient.getBeaker(sessionId);
 
@@ -299,7 +299,7 @@ public class ScalaEvaluator {
     }
   }
 
-  
+
   protected ClassLoader newAutoCompleteClassLoader() throws MalformedURLException
   {
     URL[] urls = {};
@@ -312,7 +312,7 @@ public class ScalaEvaluator {
     }
     acloader = null;
     ClassLoader cl;
-    acloader = new ScalaDynamicClassLoader(outDir);
+    acloader = new ClojureDynamicClassLoader(outDir);
     acloader.addAll(Arrays.asList(urls));
     cl = acloader.getLoader();
     return cl;
@@ -320,7 +320,7 @@ public class ScalaEvaluator {
 
   protected void newAutoCompleteEvaluator() throws MalformedURLException
   {
-    acshell = new ScalaEvaluatorGlue(newAutoCompleteClassLoader(), System.getProperty("java.class.path"));
+    acshell = new ClojureEvaluatorGlue(newAutoCompleteClassLoader(), System.getProperty("java.class.path"));
 
     if (!imports.isEmpty()) {
       for (int i = 0; i < imports.size(); i++) {
@@ -335,7 +335,7 @@ public class ScalaEvaluator {
         }
       }
     }
-    
+
     // ensure object is created
     NamespaceClient.getBeaker(sessionId);
 
@@ -343,7 +343,7 @@ public class ScalaEvaluator {
     if(r!=null && !r.isEmpty()) {
       System.err.println("ERROR setting beaker: "+r);
     }
-    
+
   }
 
 }

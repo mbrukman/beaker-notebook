@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
+import com.twosigma.beaker.clojure.util.Clojure;
 import com.twosigma.beaker.NamespaceClient;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
@@ -236,7 +237,7 @@ public class ClojureEvaluator {
         theOutput.setOutputHandler();
         Object result;
         try {
-          theOutput.finished("2");
+          theOutput.finished(Clojure.eval(theCode));
         } catch(Throwable e) {
           if (e instanceof InterruptedException || e instanceof InvocationTargetException || e instanceof ThreadDeath) {
             theOutput.error("... cancelled!");
